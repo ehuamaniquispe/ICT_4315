@@ -23,7 +23,7 @@ public class PakingService
         if (command == null) {
             throw new IllegalArgumentException("Unknown command: " + name);
         }
-        Properties props = convertArgsToProperties(args);
+        Properties props = convertArgsToProperties(parameters);
         command.execute(props);
         return "command performed";
     }

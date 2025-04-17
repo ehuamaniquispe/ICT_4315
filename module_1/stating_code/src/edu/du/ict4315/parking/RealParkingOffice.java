@@ -32,8 +32,9 @@ public class RealParkingOffice {
     return permitManager.register(c).getId();
   }
 
-  public ParkingTransaction park(LocalDateTime d, ParkingPermit p, ParkingLot l) {
-    return transactionManager.park(d, p, l);
+  public ParkingTransaction park(LocalDateTime entryTime, LocalDateTime exitTime, ParkingPermit p, ParkingLot l) {
+    // Delegate to the TransactionManager to handle the actual parking logic
+    return transactionManager.park(entryTime, exitTime, p, l);
   }
 
   public Money getParkingCharges(ParkingPermit p) {

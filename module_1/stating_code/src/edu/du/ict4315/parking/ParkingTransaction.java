@@ -12,39 +12,44 @@ import java.time.LocalDateTime;
 import edu.du.ict4315.currency.Money;
 
 public class ParkingTransaction {
-  private Instant transactionDate;
-	private LocalDateTime date;
+	private Instant transactionDate;
+	private LocalDateTime entryTime;
+	private LocalDateTime exitTime;
 	private ParkingPermit permit;
 	private ParkingLot parkingLot;
 	private Money chargedAmount;
-	
-	public ParkingTransaction(LocalDateTime d, ParkingPermit p, ParkingLot l, Money m) {
-	  transactionDate = Instant.now();
-		date = d;
-		permit = p;
-		parkingLot = l;
-		chargedAmount = m;
+
+	public ParkingTransaction(LocalDateTime entryTime, LocalDateTime exitTime, ParkingPermit permit, ParkingLot parkingLot, Money chargedAmount) {
+		this.transactionDate = Instant.now();
+		this.entryTime = entryTime;
+		this.exitTime = exitTime;
+		this.permit = permit;
+		this.parkingLot = parkingLot;
+		this.chargedAmount = chargedAmount;
 	}
-	
+
+	// Getters
 	public Money getChargedAmount() {
 		return chargedAmount;
 	}
-	
+
 	public ParkingPermit getPermit() {
 		return permit;
 	}
 
-  public LocalDateTime getDate() {
-    return date;
-  }
+	public LocalDateTime getEntryTime() {
+		return entryTime;
+	}
 
-  public ParkingLot getParkingLot() {
-    return parkingLot;
-  }
+	public LocalDateTime getExitTime() {
+		return exitTime;
+	}
 
-  public Instant getTransactionDate() {
-    return transactionDate;
-  }
-  
-  // TODO: toString()
+	public ParkingLot getParkingLot() {
+		return parkingLot;
+	}
+
+	public Instant getTransactionDate() {
+		return transactionDate;
+	}
 }

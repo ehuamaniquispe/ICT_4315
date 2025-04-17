@@ -82,7 +82,7 @@ public class ParkingService {
           LocalDateTime dateTime = checkDateTime(args[2]);
           ParkingLot pl = checkParkingLot(args[0]);
           ParkingPermit parkedCar = checkParkingPermit(args[1]);
-          ParkingTransaction transaction = parkingOffice.park(dateTime, parkedCar, pl);
+          ParkingTransaction transaction = parkingOffice.park(dateTime, dateTime,parkedCar, pl);
           if ( transaction != null ) {
             // Updated output to simply post the charge amount.
             messages.add(transaction.getChargedAmount().toString());

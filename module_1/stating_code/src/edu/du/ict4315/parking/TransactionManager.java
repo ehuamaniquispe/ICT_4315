@@ -27,14 +27,12 @@ public class TransactionManager {
     this.office = office;
   }
 
-  public ParkingTransaction park(LocalDateTime d, ParkingPermit p, ParkingLot l) {
+  public ParkingTransaction park(LocalDateTime entryTime, LocalDateTime exitTime, ParkingPermit p, ParkingLot l) {
     ParkingTransaction transaction = null;
-    if ( l != null && p != null && l != null ) {
-      Money money = l.getParkingCharges(p, d);
-      transaction = new ParkingTransaction(d, p, l, money);
+    if (l != null && p != null) {
+      Money money = l.getParkingCharges(p, entryTime, exitTime); // updated
+      transaction = new ParkingTransaction(entryTime, exitTime, p, l, money); // updated
       transactions.add(transaction);
-    } else {
-      
     }
     return transaction;
   }
