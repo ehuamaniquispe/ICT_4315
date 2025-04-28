@@ -13,18 +13,14 @@ public class ParkingLot {
     private ParkingChargeStrategy parkingChargeStrategy;
 
     // Constructor with base rate and parking charge strategy
-    public ParkingLot(String id, String name, Address address, Money baseRate, ParkingChargeStrategy parkingChargeStrategy) {
+    public ParkingLot(String id, String name, Address address, Money baseRate, ParkingChargeStrategyFactory factory) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.baseRate = baseRate;
-        this.parkingChargeStrategy = parkingChargeStrategy; // Assign the strategy
+        this.parkingChargeStrategy = factory.createStrategy(this);; // Assign the factory
     }
 
-    // Constructor without parking charge strategy, defaults to exit-based hourly
-    public ParkingLot(String id, String name, Address address, Money baseRate) {
-        this(id, name, address, baseRate, new ExitBasedHourlyStrategy()); // Default strategy
-    }
 
     // Getter for base rate
     public Money getBaseRate() {
