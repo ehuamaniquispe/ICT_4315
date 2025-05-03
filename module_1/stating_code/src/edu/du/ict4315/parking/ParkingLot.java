@@ -2,7 +2,10 @@ package edu.du.ict4315.parking;
 
 import edu.du.ict4315.currency.Money;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+// this will act as observable
 public class ParkingLot {
     private String id;
     private String name;
@@ -11,6 +14,23 @@ public class ParkingLot {
 
     // New data member to hold the ParkingChargeStrategy for this ParkingLot
     private ParkingChargeStrategy parkingChargeStrategy;
+
+    private List<ParkingObserver> observers = new ArrayList<>();
+
+    // Add/Remove observers
+    public void addObserver(ParkingObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(ParkingObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers(ParkingEvent event) {
+        for (ParkingObserver observer : observers) {
+            observer.update(event);
+        }
+    }
 
     // Constructor with base rate and parking charge strategy
     public ParkingLot(String id, String name, Address address, Money baseRate, ParkingChargeStrategyFactory factory) {
@@ -70,13 +90,16 @@ public class ParkingLot {
         return address;
     }
 
-    // Method for permit-required-on-enter lot
-    public void enterLot(LocalDateTime in, String permitId) {
-        // Implementation for entering the lot
+    // Method for permit-required-on-enter lot, updated for the observer method
+    public void enter(ParkingPermit permit, LocalDateTime entryTime) {
+        // For entry-only tracking, we just log the time
+        ParkingEvent event = new ParkingEvent(permit, this, entryTime, null);
+        notifyObservers(event);
     }
 
-    // Method for permit-required-on-exit lot
-    public void exitLot(LocalDateTime in, LocalDateTime out, String permitId) {
-        // Implementation for exiting the lot
+    // Method for permit-required-on-exit lot, updated for the observer method
+    public void exit(ParkingPermit permit, LocalDateTime entryTime, LocalDateTime exitTime) {
+        ParkingEvent event = new ParkingEvent(permit, this, entryTime, exitTime);
+        notifyObservers(event);
     }
 }

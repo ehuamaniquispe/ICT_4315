@@ -70,7 +70,9 @@ public class RealParkingOffice {
       { "321","Lot 321","S Gaylord St","", "Denver","CO","80210","$8.00" },
       { "301","Lot 301","E Evans Ave","","Denver","CO","80210","$8.00" },
     };
-    
+
+
+
     for ( String[] row: parkingLotData ) {
       Address address = new Address.Builder()
           .withStreetAddress1(row[2])
