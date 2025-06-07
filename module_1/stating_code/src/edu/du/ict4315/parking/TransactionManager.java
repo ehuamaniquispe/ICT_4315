@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 // The methods of the transaction manager are implemented with the stream() interface (Java 8)
 // This allows examples of map() and reduce(), as well as use of lambdas
 // Of course, these aren't required for the solution. Do you think they are more elegant?
-public class TransactionManager {
+public class TransactionManager implements ITransactionManager {
   
   private static final Logger logger = Logger.getLogger(TransactionManager.class.getName());
 

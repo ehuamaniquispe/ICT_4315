@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PermitManager {
+public class PermitManager implements IPermitManager {
 	private List<ParkingPermit> permits = new ArrayList<ParkingPermit>();
-	
+
 	private static int idCounter = 1000;
 	private static String getPermitId() {
 		idCounter += 1;
@@ -26,7 +26,7 @@ public class PermitManager {
 		permits.add(permit);
 		return permit;
 	}
-	
+
 	public ParkingPermit findPermit(String id) {
 		ParkingPermit result = null;
 		for ( ParkingPermit p: permits) {
@@ -35,7 +35,7 @@ public class PermitManager {
 				break;
 			}
 		}
-		
+
 		return result;
 	}
 }

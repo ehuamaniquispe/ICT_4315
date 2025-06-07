@@ -1,81 +1,98 @@
-package edu.du.ict4315.parking;
+// File: Server.java
+package edu.du.ict4315.parking.server;
+
+import com.google.gson.Gson;
+import edu.du.ict4315.parking.protocol.ParkingRequest;
+import edu.du.ict4315.parking.protocol.ParkingResponse;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Server {
     private static final int PORT = 4444;
     private static final Gson gson = new Gson();
+    private static final int MAX_THREADS = 10; // adjustable
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_THREADS);
 
     public static void main(String[] args) {
-        System.out.println("Server started, listening on port " + PORT);
+        System.out.println("Multithreaded Server started on port " + PORT);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
-                try {
-                    Socket clientSocket = serverSocket.accept();
-                    System.out.println("Client connected: " + clientSocket.getInetAddress());
-
-                    handleClient(clientSocket);
-                } catch (IOException e) {
-                    System.err.println("Client handling failed: " + e.getMessage());
-                }
+                Socket clientSocket = serverSocket.accept();
+                threadPool.submit(new ClientHandler(clientSocket));
             }
         } catch (IOException e) {
-            System.err.println("Could not listen on port " + PORT);
-            e.printStackTrace();
+            System.err.println("Server error: " + e.getMessage());
         }
     }
 
-    private static void handleClient(Socket clientSocket) {
-        try (
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
-        ) {
-            String jsonRequest = in.readLine();
-            ParkingRequest request = ParkingRequest.fromJson(jsonRequest);
+    // Inner class for handling client connections
+    static class ClientHandler implements Runnable {
+        private final Socket clientSocket;
 
-            System.out.println("Received command: " + request.getCommand());
-            ParkingResponse response = processRequest(request);
+        public ClientHandler(Socket socket) {
+            this.clientSocket = socket;
+        }
 
-            String jsonResponse = response.toJson();
-            out.println(jsonResponse);
-            out.flush();
+        @Override
+        public void run() {
+            long start = System.currentTimeMillis();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                clientSocket.close();
+            try (
+                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
+            ) {
+                String jsonRequest = in.readLine();
+                ParkingRequest request = ParkingRequest.fromJson(jsonRequest);
+
+                System.out.println("[" + Thread.currentThread().getName() + "] Handling command: " + request.getCommand());
+
+                ParkingResponse response = processRequest(request);
+                out.println(response.toJson());
+                out.flush();
+
             } catch (IOException e) {
-                System.err.println("Failed to close client socket.");
+                System.err.println("Client handling error: " + e.getMessage());
+            } finally {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing client socket");
+                }
+                long duration = System.currentTimeMillis() - start;
+                System.out.println("[" + Thread.currentThread().getName() + "] Finished in " + duration + "ms");
             }
         }
-    }
 
-    private static ParkingResponse processRequest(ParkingRequest request) {
-        String command = request.getCommand();
-        Properties props = request.getProperties();
+        private ParkingResponse processRequest(ParkingRequest request) {
+            String command = request.getCommand();
+            Properties props = request.getProperties();
 
-        switch (command.toUpperCase()) {
-            case "CUSTOMER":
-                return handleCustomerCommand(props);
-            case "CAR":
-                return handleCarCommand(props);
-            default:
-                return new ParkingResponse(400, "Unknown command: " + command);
+            switch (command.toUpperCase()) {
+                case "CUSTOMER":
+                    return handleCustomerCommand(props);
+                case "CAR":
+                    return handleCarCommand(props);
+                default:
+                    return new ParkingResponse(400, "Unknown command: " + command);
+            }
         }
-    }
 
-    private static ParkingResponse handleCustomerCommand(Properties props) {
-        String firstName = props.getProperty("firstname", "Unknown");
-        String lastName = props.getProperty("lastname", "Unknown");
-        return new ParkingResponse(200, "Customer registered: " + firstName + " " + lastName);
-    }
+        private ParkingResponse handleCustomerCommand(Properties props) {
+            String firstName = props.getProperty("firstname", "Unknown");
+            String lastName = props.getProperty("lastname", "Unknown");
+            return new ParkingResponse(200, "Customer registered: " + firstName + " " + lastName);
+        }
 
-    private static ParkingResponse handleCarCommand(Properties props) {
-        String plate = props.getProperty("plate", "N/A");
-        String color = props.getProperty("color", "N/A");
-        return new ParkingResponse(200, "Car registered: Plate=" + plate + ", Color=" + color);
+        private ParkingResponse handleCarCommand(Properties props) {
+            String plate = props.getProperty("plate", "N/A");
+            String color = props.getProperty("color", "N/A");
+            return new ParkingResponse(200, "Car registered: Plate=" + plate + ", Color=" + color);
+        }
     }
 }

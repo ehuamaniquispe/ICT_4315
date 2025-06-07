@@ -6,10 +6,10 @@
 ////////////////////
 package edu.du.ict4315.parking;
 
+import com.google.inject.Inject;
 import edu.du.ict4315.currency.Money;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RealParkingOffice {
@@ -20,8 +20,15 @@ public class RealParkingOffice {
 
   // Note: The transaction manager / permit manager approach used here would also  be appropriate
   //       for the customer list and parking lot list
-  private final PermitManager permitManager = new PermitManager();  
-  private final TransactionManager transactionManager = new TransactionManager(this);
+  private final IPermitManager permitManager;
+  private final ITransactionManager transactionManager;
+
+  @Inject
+  public RealParkingOffice(IPermitManager permitManager, ITransactionManager transactionManager) {
+    this.permitManager = permitManager;
+    this.transactionManager = transactionManager;
+    setupParkingLots();
+  }
 
   public String register(Customer c) {
     listOfCustomers.add(c);
